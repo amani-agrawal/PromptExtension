@@ -3,8 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prompt Extension</title>
+  <title>PromptPilot</title>
   <style>
+    #logo {
+      width: 60px;
+      height: 60px;
+      object-fit: cover; /* or cover, depending on how you want it to scale */
+    }
+
     :root {
       --bg: #000;
       --fg: #fff;
@@ -159,13 +165,24 @@
     #thumbDown { bottom: 20px; }
 
     .hidden { display: none !important; }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .toggle-container input[type="checkbox"] {
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <div class="logo" id="logo"></div>
-      <div class="extension-name" id="extensionName">Prompt Extension</div>
+      <img src="icon.png" id="logo" class="logo" alt="Logo" />
+      <div class="extension-name" id="extensionName">PromptPilot</div>
     </header>
 
     <label for="promptInput">Your Prompt</label>
