@@ -1,6 +1,3 @@
-// popup.js – handles UI interactivity for Prompt Extension
-
-// Utility: bind toggle behavior to button groups
 function bindToggle(groupId) {
   const group = document.getElementById(groupId);
   if (!group) return;
@@ -20,7 +17,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const procText  = document.getElementById('processedText');
   const thumbUp   = document.getElementById('thumbUp');
   const thumbDown = document.getElementById('thumbDown');
+  const enableFloat = document.getElementById('enableFloating');
   const originalIconHTML = copyBtn.innerHTML;
+
+  
 
   chrome.runtime.sendMessage({ type: 'getLastPrompt' }, (response) => {
     console.log("Trying to read value!", response);
