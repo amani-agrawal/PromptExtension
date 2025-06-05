@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Extension</title>
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --accent: #1f1f1f;
+      --border: #333;
+      --accent-hover: #2a2a2a;
+      --accent-active: #444;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      min-width: 80vh;
+    }
+
+    .container {
+      width: 95vw;
+      max-width: 960px;
+      padding: 24px 32px 40px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      height: 56px;
+      width: 56px;
+      border-radius: 12px;
+      background: var(--accent);
+      margin-right: 14px;
+    }
+
+    .extension-name {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    label {
+      margin: 16px 0 8px;
+      display: block;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--fg);
+      resize: vertical;
+    }
+
+    /* Button groups */
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .btn-option {
+      flex: 1 1 auto;
+      padding: 10px 0;
+      text-align: center;
+      border: 1px solid var(--border);
+      background: var(--accent);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn-option:hover { background: var(--accent-hover); }
+    .btn-option.active { background: var(--accent-active); }
+
+    /* Generate button */
+    .generate-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .generate-btn:hover { background: var(--accent-hover); }
+
+    /* Copy row */
+    .copy-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .copy-row > textarea { flex: 1 1 auto; }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      background: var(--accent);
+      color: var(--fg);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .copy-btn:hover { background: var(--accent-hover); }
+
+    .copy-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Floating thumbs */
+    .thumb {
+      position: fixed;
+      right: 20px;
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--fg);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .15s ease;
+      z-index: 999;
+    }
+    .thumb:hover { background: var(--accent-hover); }
+    #thumbUp { bottom: 80px; }
+    #thumbDown { bottom: 20px; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo" id="logo"></div>
+      <div class="extension-name" id="extensionName">Prompt Extension</div>
+    </header>
+
+    <label for="promptInput">Your Prompt</label>
+    <textarea id="promptInput" placeholder="Type your prompt here..." rows="3"></textarea>
+
+    <label>Question type</label>
+    <div class="btn-group" id="questionTypeGroup">
+      <div class="btn-option active" data-value="writing">Writing</div>
+      <div class="btn-option" data-value="calculation">Calculation</div>
+    </div>
+
+    <label>Justification required</label>
+    <div class="btn-group" id="justificationGroup">
+      <div class="btn-option active" data-value="no">No, Direct answer</div>
+      <div class="btn-option" data-value="yes">Yes, Step-by-step</div>
+    </div>
+
+    <label>Data to be used</label>
+    <div class="btn-group" id="dataFetchGroup">
+      <div class="btn-option active" data-value="yes">Will be provided to the model</div>
+      <div class="btn-option" data-value="no">To be searched by the model</div>
+    </div>
+
+    <!-- Generate Button -->
+    <button class="generate-btn" id="generateBtn">Generate</button>
+
+    <label for="processedText" style="margin-top:16px;">Processed Text</label>
+    <div class="copy-row">
+      <textarea id="processedText" placeholder="Processed output will appear here..." rows="3" readonly></textarea>
+      <button class="copy-btn" id="copyBtn" title="Copy to clipboard">
+        <img src="https://cdn2.iconfinder.com/data/icons/text-editing-glyph-black/614/3786_-_Paste-32.png" alt="Copy" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating feedback buttons -->
+  <button class="thumb hidden" id="thumbUp" title="Thumbs up">&#128077;</button>
+  <button class="thumb hidden" id="thumbDown" title="Thumbs down">&#128078;</button>
+
+  <!-- External script handles interactions -->
+  <script src="popup.js"></script>
+</body>
+</html>
