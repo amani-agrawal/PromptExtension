@@ -1,7 +1,13 @@
 {
-  "name": "Prompt Extension",
+  "name": "PromptPilot",
   "version": "0.1",
   "manifest_version": 3,
+
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
 
   "permissions": [
     "activeTab"
@@ -20,7 +26,7 @@
   },
 
   "action": {
-    "default_title": "Prompt Extension",
+    "default_title": "PromptPilot",
     "default_popup": "frontend.html"
   }
 }
