@@ -1,10 +1,26 @@
 {
-  "name": "Prompt Extensions",
-  "description": "Base Level Extension",
-  "version": "0.0",
+  "name": "Prompt Extension",
+  "version": "0.1",
   "manifest_version": 3,
+
+  "permissions": [
+    "activeTab"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*", "https://www.chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["scripts/contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
   "action": {
-    "default_popup": "hello.html",
-    "default_icon": "icon.png"
+    "default_title": "Prompt Extension",
+    "default_popup": "frontend.html"
   }
 }
