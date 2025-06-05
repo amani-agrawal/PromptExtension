@@ -1,18 +1,23 @@
-// Keep track of the last prompt text seen from ChatGPT
 let lastPrompt = '';
 
-// Listen for messages from content scripts
+// Listen for any messages from content scripts or the popup
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === 'capturedPrompt') {
-    lastPrompt = msg.text;
-  }
-  console.log("Message saved!", lastPrompt);
-});
+  switch (msg.type) {
+    // 1) Content script sends a new prompt whenever the user types
+    case 'capturedPrompt':
+        lastPrompt = msg.text;
+    break;
 
-// When the popup requests the current prompt, send it back
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === 'getLastPrompt') {
-    sendResponse({ text: lastPrompt });
+    // 2) Popup asks for the “last prompt” when it opens
+    case 'getLastPrompt':
+        sendResponse({ text: lastPrompt });
+    break;
+
+    case 'userClickedOptimize':
+        chrome.action.openPopup();
+    break;
+
+    default:
+      break;
   }
-  // (no return here; sendResponse is synchronous in MV3)
 });
