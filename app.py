@@ -11,6 +11,13 @@ MODEL_NAME = "amani-agrawal/prompt-pilot-model"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"]  = "chrome-extension://lidnoefjhhjejpekmjkhpgncdpmhnbjd"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
+    
 @app.route("/generate", methods=["POST", "OPTIONS"])
 def generate():
     if request.method == 'OPTIONS':
