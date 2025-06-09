@@ -1,0 +1,110 @@
+from datasets import load_dataset
+from transformers import T5Tokenizer, T5ForConditionalGeneration, TrainingArguments, Trainer
+from peft import LoraConfig, get_peft_model
+from huggingface_hub import login
+
+MODEL_NAME = "google/flan-t5-base"
+tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+print("Model loaded")
+
+# paths to the files
+data_files = {
+    "train": "train.csv",
+    "validation": "val.csv",
+}
+
+raw = load_dataset("csv", data_files=data_files)
+print("Data Loaded!")
+
+def prepend_instruction(example):
+    example["old_prompt"] = "Create a new, more detailed prompt for the below text:\n" + example["old_prompt"]
+    return example
+
+raw = raw.map(prepend_instruction)
+print("Prepended data rows")
+
+def preprocess(batch):
+    model_in = tokenizer(
+        batch["old_prompt"],
+        truncation=True,
+        padding="max_length",
+        max_length = 128
+    )
+    with tokenizer.as_target_tokenizer():
+        labels = tokenizer(
+            batch["new_prompt"],
+            truncation=True,
+            padding="max_length",
+            max_length = 512
+        )
+    model_in["labels"] = labels["input_ids"]
+    return model_in
+
+tokenised = raw.map(
+    preprocess,
+    batched=True,
+    remove_columns=raw["train"].column_names,
+)
+print("Encoded the input and outputs")
+
+lora_cfg = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q", "v"],
+    lora_dropout=0.05,
+)
+model = get_peft_model(model, lora_cfg)
+model.print_trainable_parameters()
+
+training_args = TrainingArguments(
+    output_dir          = "./prompt-pilot-model",
+    per_device_train_batch_size = 4,
+    per_device_eval_batch_size  = 4,
+    gradient_accumulation_steps = 8,
+    num_train_epochs    = 2,
+    learning_rate       = 4e-4,
+    lr_scheduler_type   = "cosine",
+    fp16                = False,
+    logging_steps       = 2000,
+    eval_strategy = "epoch",
+    save_strategy       = "epoch",
+    report_to           = "none",
+)
+
+trainer = Trainer(
+    model          = model,
+    args           = training_args,
+    train_dataset  = tokenised["train"],
+    eval_dataset   = tokenised["validation"],
+)
+
+print("Training now")
+trainer.train()
+print("Training done")
+
+#model = model.merge_and_unload()
+print("Model Merged")
+
+model.save_pretrained("./prompt-pilot-model")
+tokenizer.save_pretrained("./prompt-pilot-model")
+print("Model saved")
+
+'''
+#Push you model to hugging face
+#pip install huggingface_hub transformers
+
+login()
+
+model = T5ForConditionalGeneration.from_pretrained("./prompt-pilot-model")
+tokenizer = T5Tokenizer.from_pretrained("./prompt-pilot-model")
+
+repo_name = "prompt-pilot-model-onnx"
+hf_username = "amani-agrawal"
+
+model.push_to_hub(f"{hf_username}/{repo_name}", commit_message="Initial push of fine-tuned model")
+tokenizer.push_to_hub(f"{hf_username}/{repo_name}", commit_message="Upload tokenizer")
+
+model = T5ForConditionalGeneration.from_pretrained("./prompt-pilot-model")
+tokenizer = T5Tokenizer.from_pretrained("./prompt-pilot-model")
+'''

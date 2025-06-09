@@ -1,0 +1,35 @@
+{
+  "name": "PromptPilot",
+  "version": "0.1",
+  "manifest_version": 3,
+
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+
+  "host_permissions": ["http://127.0.0.1:5001/"],
+
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*", "https://www.chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["scripts/contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_title": "PromptPilot",
+    "default_popup": "frontend.html"
+  }
+}
