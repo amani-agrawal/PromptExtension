@@ -1,4 +1,6 @@
-#This is to finetune the model and is ont part of the end-product
+#This is a python file to finetune the model and is ont part of the end-product
+#It is in a txt file for vercel to not deply this
+
 from datasets import load_dataset
 from transformers import T5Tokenizer, T5ForConditionalGeneration, TrainingArguments, Trainer
 from peft import LoraConfig, get_peft_model
