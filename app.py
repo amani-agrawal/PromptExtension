@@ -26,12 +26,5 @@ def generate():
 
     return jsonify({"output": output_text})
 
-@app.after_request
-def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = "chrome-extension://lidnoefjhhhejpekmjkhpgncdpmhnbjd"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    return response
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(port=5000)
