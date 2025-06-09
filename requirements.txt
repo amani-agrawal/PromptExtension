@@ -3,3 +3,4 @@ flask_cors
 transformers
 sentencepiece
 protobuf
+torch
