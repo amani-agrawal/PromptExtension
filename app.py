@@ -6,7 +6,6 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration
 app = Flask(__name__)
 CORS(app)
 
-# Load model and tokenizer (once at startup)
 MODEL_NAME = "amani-agrawal/prompt-pilot-model"
 tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
 model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
@@ -26,4 +25,4 @@ def generate():
     return jsonify({"output": output_text})
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(port=5001)
