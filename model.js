@@ -1,12 +1,19 @@
 async function runModel(prompt) {
-    fetch("http://localhost:5001/generate", {
+  try {
+    const res  = await fetch("http://localhost:5001/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt})
-    })
-    .then(r => r.json())
-    .then(d => {return d});
-    return "Error, could not generate output!";
+      body: JSON.stringify({ prompt })
+    });
+    if (!res.ok) {
+      throw new Error(`Status ${res.status}`);
+    }
+    const data = await res.json();
+    return data.output;  
+  } catch (err) {
+    console.error(err);
+    return `Error: ${err.message}`;
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
