@@ -4,7 +4,7 @@ from transformers import T5ForConditionalGeneration, AutoTokenizer
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["chrome-extension://lidnoefjhhjejpekmjkhpgncdpmhnbjd"])
 
 # Load model and tokenizer (once at startup)
 MODEL_NAME = "amani-agrawal/prompt-pilot-model"
